@@ -1,0 +1,88 @@
+package patterns.behavioural.observer;
+
+import java.util.ArrayList;
+
+interface IObserver {
+	public void update(float interest);
+}
+
+interface ISubject {
+	public void registerObserver(IObserver observer);
+	public void removeObserver(IObserver observer);
+	public void notifyObservers();
+}
+
+class Loan implements ISubject {
+	private ArrayList<IObserver> observers = new ArrayList<IObserver>();
+	private String loanType;
+	private float interest;
+	private String bank;
+
+	public Loan(String loanType, float interest, String bank) {
+		this.loanType = loanType;
+		this.interest = interest;
+		this.bank = bank;
+	}
+
+	public float getInterest() {
+		return interest;
+	}
+
+	public void setInterest(float interest) {
+		this.interest = interest;
+		notifyObservers();
+	}
+
+	public String getBank() {
+		return this.bank;
+	}
+
+	public String getType() {
+		return this.loanType;
+	}
+
+	@Override
+	public void registerObserver(IObserver observer) {
+		observers.add(observer);
+	}
+
+	@Override
+	public void removeObserver(IObserver observer) {
+		observers.remove(observer);
+	}
+
+	@Override
+	public void notifyObservers() {
+		for (IObserver observer : observers) {
+			System.out.println("Notifying Observers on change in Loan interest rate");
+			observer.update(this.interest);
+			System.out.println("-----------------------------------------------------");
+		}
+	}
+}
+
+class Newspaper implements IObserver {
+	@Override
+	public void update(float interest) {
+		System.out.println("[Newspaper]: Interest Rate updated, new Rate is: " + interest);
+	}
+}
+
+class Internet implements IObserver {
+	@Override
+	public void update(float interest) {
+		System.out.println("[Internet]: Interest Rate updated, new Rate is: " + interest);
+	}
+}
+
+public class ObserverTest {
+	public static void main(String args[]) {
+		Newspaper newsMedia = new Newspaper();
+		Internet internetMedia = new Internet();
+
+		Loan personalLoan = new Loan("Personal Loan", 12.5f, "StupidBanks");
+		personalLoan.registerObserver(newsMedia);
+		personalLoan.registerObserver(internetMedia);
+		personalLoan.setInterest(11.5f);
+	}
+}
